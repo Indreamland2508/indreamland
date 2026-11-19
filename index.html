@@ -3,102 +3,143 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Lời chúc gửi người thương</title>
-<meta name="description" content="Một góc nhỏ gửi lời chúc nhân dịp Tết và Giáng Sinh.">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;700&family=Dancing+Script:wght@600;700&display=swap">
-<style>
-:root{--bg:#5c0a10;--bg2:#8e1018;--accent:#f5c04a;--ink:#fff4dc;--card:rgba(255,244,220,.1);--line:rgba(245,192,74,.45)}
-[data-theme="noel"]{--bg:#0f3d26;--bg2:#17603b;--accent:#ffffff;--ink:#f4fbf6;--card:rgba(255,255,255,.1);--line:rgba(255,255,255,.4);--red:#d62d3a}
-*{box-sizing:border-box}
-body{margin:0;min-height:100vh;color:var(--ink);font-family:"Be Vietnam Pro",system-ui,sans-serif;line-height:1.7;background:radial-gradient(ellipse at top,var(--bg2),var(--bg) 70%) fixed;transition:background .6s}
-main{position:relative;z-index:1;max-width:760px;margin:0 auto;padding:22px 18px 70px;text-align:center}
-nav{display:flex;gap:8px;justify-content:center;margin-bottom:34px}
-nav button{font:inherit;font-weight:500;color:var(--ink);background:transparent;border:1px solid var(--line);border-radius:99px;padding:8px 20px;cursor:pointer}
-nav button[aria-pressed="true"]{background:var(--accent);color:var(--bg);border-color:var(--accent)}
-button:focus-visible,input:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
-.to{margin:0;font-size:1.05rem;opacity:.9}
-h1{font-family:"Dancing Script",cursive;font-weight:700;font-size:clamp(2.8rem,11vw,5.2rem);line-height:1.1;margin:8px 0 18px;color:var(--accent)}
-.meaning{max-width:52ch;margin:0 auto 34px;font-size:1.05rem}
-.wishes{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));margin-bottom:12px}
-.wish{font:inherit;color:inherit;text-align:center;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:22px 16px;min-height:150px;cursor:pointer}
-.wish .t{display:block;font-family:"Dancing Script",cursive;font-size:1.7rem;color:var(--accent)}
-.wish .b{display:none;margin-top:6px;font-size:.98rem}
-.wish[aria-expanded="true"] .b{display:block}
-.wish[aria-expanded="true"] .h{display:none}
-.hint{font-size:.88rem;opacity:.75;margin:0 0 40px}
-.from{font-family:"Dancing Script",cursive;font-size:1.8rem;margin:0 0 50px}
-.make{border-top:1px solid var(--line);padding-top:26px;font-size:.95rem}
-.make h2{font-size:1rem;font-weight:700;margin:0 0 12px}
-.make .row{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
-.make input{font:inherit;padding:8px 12px;border-radius:8px;border:1px solid var(--line);background:rgba(0,0,0,.2);color:var(--ink);width:170px}
-.make .copy{font:inherit;font-weight:700;border:0;border-radius:8px;padding:8px 16px;background:var(--accent);color:var(--bg);cursor:pointer}
-#msg{min-height:1.5em;margin:10px 0 0;opacity:.85}
-.fall{position:fixed;top:-10%;z-index:0;pointer-events:none;color:var(--accent);opacity:.7;animation:fall linear infinite}
-@keyframes fall{to{transform:translateY(115vh) rotate(300deg)}}
-@media(prefers-reduced-motion:reduce){.fall{display:none}}
-</style>
+<meta name="theme-color" content="#163b32">
+<title>Giáng Sinh an lành</title>
+<meta name="description" content="Một góc nhỏ gửi lời chúc Giáng Sinh đến người thương.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600;1,700&display=swap">
+<link rel="stylesheet" href="styles.css">
+<script src="app.js" defer></script>
 </head>
 <body>
-<main>
-<nav aria-label="Chọn dịp lễ">
-  <button type="button" data-t="tet" aria-pressed="true">Tết</button>
-  <button type="button" data-t="noel" aria-pressed="false">Giáng Sinh</button>
+
+<header class="hero" id="top">
+<nav class="pill" aria-label="Điều hướng chính">
+<a class="brand" href="#top"><span class="brand-mark" aria-hidden="true">✳</span><span>Mùa ấm áp</span></a>
+<div class="nav-links">
+<a href="#loichuc">Lời chúc</a>
+<a href="#nhac">Bản nhạc</a>
+<a href="#demnguoc">Đếm ngược</a>
+<a href="#hoatdong">Hoạt động</a>
+<a href="#thu">Lá thư</a>
+</div>
 </nav>
+<div class="hg">
+<div class="hero-copy">
+<p class="eyebrow">Mùa của những điều ấm áp</p>
 <p class="to" id="to"></p>
-<h1 id="title"></h1>
-<p class="meaning" id="meaning"></p>
-<div class="wishes" id="wishes"></div>
-<p class="hint">Chạm vào từng thẻ để mở lời chúc.</p>
-<p class="from" id="from"></p>
-<section class="make">
-  <h2>Tạo đường link để gửi tặng</h2>
-  <div class="row">
-    <input id="inTo" placeholder="Tên người nhận" aria-label="Tên người nhận">
-    <input id="inFrom" placeholder="Tên của bạn" aria-label="Tên của bạn">
-    <button class="copy" id="copy" type="button">Sao chép link</button>
-  </div>
-  <p id="msg" role="status"></p>
+<h1>Một mùa Giáng Sinh an lành, gửi trọn niềm vui đến bạn</h1>
+<p class="hero-text">Giữa một năm bận rộn, mong bạn có thể chậm lại đôi chút, nhìn quanh những người thương và nhận ra mình đã có thật nhiều điều quý giá.</p>
+<a class="btn" href="#loichuc">Mở lời chúc <span aria-hidden="true">↗</span></a>
+<p class="hero-note"><span aria-hidden="true">✦</span> Gửi bạn một chút dịu dàng mùa đông</p>
+</div>
+<div class="tree">
+<div class="tree-glow"></div>
+<svg viewBox="0 0 300 340" role="img" aria-label="Cây thông Giáng Sinh">
+<polygon points="150,36 92,128 208,128" fill="#2aa564"/><polygon points="150,84 72,200 228,200" fill="#1f8a52"/><polygon points="150,146 52,280 248,280" fill="#166e42"/>
+<rect x="134" y="280" width="32" height="44" rx="3" fill="#6b3f22"/>
+<polygon points="150,10 156,28 175,28 160,39 166,57 150,46 134,57 140,39 125,28 144,28" fill="#ffd66b"/>
+<circle cx="135" cy="108" r="9" fill="#d62d3a"/><circle cx="172" cy="160" r="10" fill="#ffd66b"/><circle cx="112" cy="186" r="10" fill="#fff"/><circle cx="190" cy="232" r="11" fill="#d62d3a"/><circle cx="128" cy="252" r="11" fill="#ffd66b"/><circle cx="168" cy="266" r="10" fill="#fff"/>
+</svg>
+<span class="tree-caption"><span aria-hidden="true">✦</span> Một mùa thật dịu dàng</span>
+</div>
+</div>
+<a class="scroll-cue" href="#loichuc" aria-label="Cuộn đến lời chúc"><span aria-hidden="true">↓</span></a>
+</header>
+
+<main class="wrap">
+<section class="blk" id="loichuc">
+<div class="section-heading">
+<p class="section-label">01 <span>— Gửi bạn</span></p>
+<h2 class="t">Sáu lời chúc dành cho bạn</h2>
+<p class="lead">Có những điều thật đẹp chỉ cần được nói ra. Chạm vào từng tấm thiệp để mở nhé.</p>
+</div>
+<div class="grid" id="wishes"></div>
+<p class="prog" id="prog" aria-live="polite"></p>
+</section>
+
+<section class="blk" id="nhac">
+<div class="feat">
+<div class="music-art" aria-hidden="true">
+<span class="music-spark spark-one">✦</span>
+<span class="music-spark spark-two">✧</span>
+<div class="disc"><svg viewBox="0 0 64 64" aria-hidden="true"><path d="M26 14v28a8 8 0 1 0 4 7V24l20-5v18a8 8 0 1 0 4 7V10z" fill="#fff"/></svg></div>
+</div>
+<div class="feat-copy">
+<p class="section-label">02 <span>— Một chút giai điệu</span></p>
+<h2>Bản nhạc hộp nhạc Giáng Sinh</h2>
+<p id="mnote">Một giai điệu quen thuộc ngân nga thật khẽ, để những phút giây cuối năm thêm phần bình yên.</p>
+<button class="btn btn-light" id="play" type="button" aria-pressed="false">Phát nhạc <span aria-hidden="true">♫</span></button>
+</div>
+</div>
+</section>
+
+<section class="cd" id="demnguoc">
+<div class="cd-copy">
+<p class="section-label">03 <span>— Ngày đặc biệt đang đến</span></p>
+<h2>Đếm từng khoảnh khắc đến Giáng Sinh</h2>
+<p>Mong chờ cũng là một phần thật đẹp của mùa lễ hội.</p>
+<div class="boxes" id="boxes" role="timer" aria-live="off"></div>
+</div>
+<div class="gift">
+<div class="gift-halo"></div>
+<svg viewBox="0 0 200 200" role="img" aria-label="Hộp quà Giáng Sinh">
+<ellipse cx="100" cy="178" rx="70" ry="9" fill="#0f372b" opacity=".18"/>
+<rect x="30" y="90" width="140" height="95" rx="8" fill="#bd5150"/><rect x="20" y="66" width="160" height="32" rx="8" fill="#d46a62"/>
+<rect x="90" y="66" width="20" height="119" fill="#eacb87"/>
+<path d="M100 66C70 20 40 48 74 66zM100 66C130 20 160 48 126 66z" fill="#eacb87"/>
+</svg>
+<span class="gift-star star-left" aria-hidden="true">✦</span><span class="gift-star star-right" aria-hidden="true">✧</span>
+</div>
+</section>
+
+<section class="blk" id="hoatdong">
+<div class="section-heading">
+<p class="section-label">04 <span>— Cùng nhau</span></p>
+<h2 class="t">Những điều nhỏ để làm bên nhau</h2>
+<p class="lead">Không cần điều gì thật lớn lao. Chỉ cần mình dành thời gian cho nhau là mùa lễ đã đủ đáng nhớ.</p>
+</div>
+<div class="tasks" id="tasks"></div>
+<p class="prog" id="tprog" aria-live="polite"></p>
+</section>
+
+<section class="blk" id="thu">
+<div class="section-heading">
+<p class="section-label">05 <span>— Từ trái tim</span></p>
+<h2 class="t">Có đôi lời muốn gửi bạn</h2>
+</div>
+<div class="say">
+<div class="letter-stamp" aria-hidden="true"><span id="av">♥</span></div>
+<div class="letter-copy">
+<p class="letter-greeting" id="hi"></p>
+<p>Cuối năm rồi, mình muốn dừng lại một chút để nói điều mà ngày thường hay quên nói.</p>
+<p>Cảm ơn bạn vì những lần hỏi han, những bữa ăn chung và cả những lúc im lặng ngồi cạnh nhau. Những điều nhỏ ấy làm một năm của mình ấm hơn nhiều.</p>
+<p>Chúc bạn một mùa Giáng Sinh bình yên, đủ đầy tiếng cười và những người thương ở bên.</p>
+<p class="sig" id="sign"></p>
+</div>
+</div>
 </section>
 </main>
-<script>
-var D={
-tet:{title:"Chúc mừng năm mới",meaning:"Tết là lúc cả nhà quây quần, khép lại một năm cũ và mở ra một năm mới thật bình an.",petal:"✿",
-w:[["Sức khỏe","Chúc bạn một năm dồi dào sức khỏe để làm trọn những điều mình yêu thích."],
-["Bình an","Mong mọi lo toan nhẹ đi, mỗi ngày đều bình yên và nhiều tiếng cười."],
-["Sum vầy","Mong cả nhà luôn đủ đầy, bên nhau trong những bữa cơm ấm áp."]]},
-noel:{title:"Giáng Sinh an lành",meaning:"Giáng Sinh là mùa của yêu thương và sẻ chia, của những cái ôm thật lâu giữa trời lạnh.",petal:"❄",
-w:[["Ấm áp","Chúc bạn có một mùa đông ấm áp bên những người mình thương."],
-["Niềm vui","Mong mỗi ngày của bạn đều có một điều nhỏ bé khiến bạn mỉm cười."],
-["Biết ơn","Cảm ơn bạn vì đã luôn ở đó, chúc bạn một mùa lễ trọn vẹn."]]}};
-var q=new URLSearchParams(location.search),cur=q.get("t")==="noel"?"noel":"tet";
-var $=function(i){return document.getElementById(i)};
-function render(){
-var d=D[cur];document.documentElement.dataset.theme=cur;
-$("title").textContent=d.title;$("meaning").textContent=d.meaning;
-var to=q.get("to"),fr=q.get("from");
-$("to").textContent=to?"Gửi "+to:"";
-$("from").textContent=fr?"Thương yêu, "+fr:"";
-var w=$("wishes");w.innerHTML="";
-d.w.forEach(function(x){var b=document.createElement("button");b.type="button";b.className="wish";b.setAttribute("aria-expanded","false");
-var t=document.createElement("span");t.className="t";t.textContent=x[0];
-var h=document.createElement("span");h.className="h";h.textContent="Mở ra";
-var m=document.createElement("span");m.className="b";m.textContent=x[1];
-b.append(t,h,m);b.onclick=function(){b.setAttribute("aria-expanded",b.getAttribute("aria-expanded")==="true"?"false":"true")};w.appendChild(b)});
-document.querySelectorAll("nav button").forEach(function(n){n.setAttribute("aria-pressed",n.dataset.t===cur)});
-document.querySelectorAll(".fall").forEach(function(e){e.remove()});
-for(var i=0;i<22;i++){var f=document.createElement("span");f.className="fall";f.textContent=d.petal;
-f.style.left=Math.random()*100+"%";f.style.fontSize=(12+Math.random()*16)+"px";
-f.style.animationDuration=(9+Math.random()*10)+"s";f.style.animationDelay=(-Math.random()*15)+"s";document.body.appendChild(f)}}
-document.querySelectorAll("nav button").forEach(function(n){n.onclick=function(){cur=n.dataset.t;render()}});
-$("copy").onclick=function(){
-var u=new URL(location.href);u.search="";u.searchParams.set("t",cur);
-if($("inTo").value.trim())u.searchParams.set("to",$("inTo").value.trim());
-if($("inFrom").value.trim())u.searchParams.set("from",$("inFrom").value.trim());
-var s=u.toString();
-function ok(){$("msg").textContent="Đã sao chép link. Bạn có thể dán và gửi ngay."}
-function no(){$("msg").textContent="Hãy sao chép link này: "+s}
-try{navigator.clipboard.writeText(s).then(ok,no)}catch(e){no()}};
-render();
-</script>
+
+<footer class="footer">
+<div class="footer-copy">
+<p class="section-label">Chia sẻ sự ấm áp</p>
+<h2>Gửi một mùa Giáng Sinh đến người bạn thương</h2>
+<p>Tạo một đường link riêng với tên người nhận và tên của bạn, rồi gửi đi nhé.</p>
+</div>
+<div class="footer-share">
+<div class="row">
+<label class="sr-only" for="inTo">Tên người nhận</label>
+<input id="inTo" placeholder="Tên người nhận">
+<label class="sr-only" for="inFrom">Tên của bạn</label>
+<input id="inFrom" placeholder="Tên của bạn">
+<button class="btn" id="copy" type="button">Sao chép link <span aria-hidden="true">↗</span></button>
+</div>
+<p id="msg" role="status"></p>
+</div>
+<p class="footer-end">Làm bằng một chút yêu thương <span aria-hidden="true">♥</span></p>
+</footer>
+
 </body>
 </html>
