@@ -4,6 +4,18 @@ import { useEffect, useMemo, useRef, useState } from "react";
 
 type Countdown = { days: number; hours: number; minutes: number; seconds: number };
 
+type SnowParticle = {
+  x: number;
+  y: number;
+  radius: number;
+  speed: number;
+  drift: number;
+  sway: number;
+  phase: number;
+  phaseSpeed: number;
+  opacity: number;
+};
+
 const wishes = [
   "May your days be merry, your nights be bright, and your heart be light.",
   "Wishing you a season wrapped in warmth, wonder, and a little bit of magic.",
@@ -11,15 +23,6 @@ const wishes = [
   "Sending you peace like falling snow and joy that glows like Christmas lights.",
   "May kindness find you, laughter surround you, and wonder stay with you all year."
 ];
-
-const snowflakes = Array.from({ length: 34 }, (_, index) => ({
-  id: index,
-  left: `${(index * 37 + 11) % 100}%`,
-  delay: `${-((index * 7) % 19)}s`,
-  duration: `${13 + ((index * 11) % 13)}s`,
-  size: `${3 + ((index * 5) % 5)}px`,
-  opacity: 0.25 + ((index * 13) % 65) / 100
-}));
 
 function getNextChristmas(): Date {
   const now = new Date();
@@ -56,12 +59,154 @@ export default function HomePage() {
   const audioContextRef = useRef<AudioContext | null>(null);
   const musicTimerRef = useRef<number | null>(null);
   const noteIndexRef = useRef(0);
+  const snowCanvasRef = useRef<HTMLCanvasElement | null>(null);
 
   useEffect(() => {
     setCountdown(getCountdown(target));
     const timer = window.setInterval(() => setCountdown(getCountdown(target)), 1000);
     return () => window.clearInterval(timer);
   }, [target]);
+
+  useEffect(() => {
+    const canvas = snowCanvasRef.current;
+    const context = canvas?.getContext("2d", { alpha: true });
+    if (!canvas || !context) return;
+
+    let width = window.innerWidth;
+    let height = window.innerHeight;
+    let pixelRatio = Math.min(window.devicePixelRatio || 1, 2);
+    let particles: SnowParticle[] = [];
+    let frameId = 0;
+    let previousTime = 0;
+    let windPhase = Math.random() * Math.PI * 2;
+    let reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    const createParticle = (randomY = true): SnowParticle => {
+      const radius = 0.55 + Math.pow(Math.random(), 1.65) * 3.15;
+      return {
+        x: Math.random() * width,
+        y: randomY ? Math.random() * height : -12 - Math.random() * 30,
+        radius,
+        speed: 0.22 + radius * 0.28 + Math.random() * 0.22,
+        drift: (Math.random() - 0.5) * (0.12 + radius * 0.08),
+        sway: 0.15 + Math.random() * 0.65,
+        phase: Math.random() * Math.PI * 2,
+        phaseSpeed: 0.004 + Math.random() * 0.009,
+        opacity: 0.2 + Math.random() * 0.62
+      };
+    };
+
+    const draw = (delta = 16.67, animate = true) => {
+      context.clearRect(0, 0, width, height);
+      windPhase += 0.00045 * delta;
+
+      for (const flake of particles) {
+        if (animate) {
+          flake.phase += flake.phaseSpeed * delta;
+          const breeze = Math.sin(windPhase + flake.y * 0.0015) * 0.22;
+          flake.x += (flake.drift + breeze + Math.sin(flake.phase) * flake.sway) * delta;
+          flake.y += flake.speed * delta;
+        }
+
+        if (flake.y > height + 12) {
+          flake.y = -10;
+          flake.x = Math.random() * width;
+        }
+        if (flake.x < -15) flake.x = width + 10;
+        if (flake.x > width + 15) flake.x = -10;
+
+        context.globalAlpha = flake.opacity;
+        context.beginPath();
+        context.arc(flake.x, flake.y, flake.radius, 0, Math.PI * 2);
+
+        if (flake.radius > 2.55) {
+          const glow = context.createRadialGradient(
+            flake.x - flake.radius * 0.28,
+            flake.y - flake.radius * 0.3,
+            0,
+            flake.x,
+            flake.y,
+            flake.radius * 1.5
+          );
+          glow.addColorStop(0, "rgba(255,255,255,1)");
+          glow.addColorStop(0.55, "rgba(239,247,250,0.92)");
+          glow.addColorStop(1, "rgba(223,238,245,0.12)");
+          context.fillStyle = glow;
+          context.shadowBlur = 5;
+          context.shadowColor = "rgba(239,247,255,0.45)";
+        } else {
+          context.fillStyle = "rgba(248,252,255,0.96)";
+          context.shadowBlur = flake.radius > 1.6 ? 2 : 0;
+          context.shadowColor = "rgba(239,247,255,0.3)";
+        }
+
+        context.fill();
+      }
+
+      context.globalAlpha = 1;
+      context.shadowBlur = 0;
+    };
+
+    const resize = () => {
+      width = window.innerWidth;
+      height = window.innerHeight;
+      pixelRatio = Math.min(window.devicePixelRatio || 1, 2);
+      canvas.width = Math.round(width * pixelRatio);
+      canvas.height = Math.round(height * pixelRatio);
+      canvas.style.width = `${width}px`;
+      canvas.style.height = `${height}px`;
+      context.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
+
+      const particleCount = Math.max(
+        78,
+        Math.min(220, Math.round((width * height) / (reducedMotion ? 15500 : 7800)))
+      );
+      particles = Array.from({ length: particleCount }, () => createParticle(true));
+      draw(0, false);
+    };
+
+    const animate = (time: number) => {
+      if (document.hidden || reducedMotion) return;
+      const delta = previousTime ? Math.min(time - previousTime, 32) : 16.67;
+      previousTime = time;
+      draw(delta, true);
+      frameId = window.requestAnimationFrame(animate);
+    };
+
+    const onVisibilityChange = () => {
+      if (document.hidden) {
+        window.cancelAnimationFrame(frameId);
+        previousTime = 0;
+      } else if (!reducedMotion) {
+        frameId = window.requestAnimationFrame(animate);
+      }
+    };
+
+    const onMotionPreferenceChange = (event: MediaQueryListEvent) => {
+      reducedMotion = event.matches;
+      window.cancelAnimationFrame(frameId);
+      previousTime = 0;
+      resize();
+      if (!reducedMotion && !document.hidden) {
+        frameId = window.requestAnimationFrame(animate);
+      }
+    };
+
+    resize();
+    if (!reducedMotion) frameId = window.requestAnimationFrame(animate);
+    window.addEventListener("resize", resize, { passive: true });
+    document.addEventListener("visibilitychange", onVisibilityChange);
+    const motionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+    motionQuery.addEventListener("change", onMotionPreferenceChange);
+
+    return () => {
+      window.cancelAnimationFrame(frameId);
+      window.removeEventListener("resize", resize);
+      document.removeEventListener("visibilitychange", onVisibilityChange);
+      motionQuery.removeEventListener("change", onMotionPreferenceChange);
+      context.clearRect(0, 0, width, height);
+    };
+  }, []);
 
   useEffect(() => {
     if (!letterOpen) return;
@@ -138,22 +283,7 @@ export default function HomePage() {
 
   return (
     <main>
-      <div className="snow-layer" aria-hidden="true">
-        {snowflakes.map((flake) => (
-          <span
-            className="snowflake"
-            key={flake.id}
-            style={{
-              left: flake.left,
-              animationDelay: flake.delay,
-              animationDuration: flake.duration,
-              width: flake.size,
-              height: flake.size,
-              opacity: flake.opacity
-            }}
-          />
-        ))}
-      </div>
+      <canvas ref={snowCanvasRef} className="snowfall-canvas" aria-hidden="true" />
 
       <header className="site-header">
         <a className="brand" href="#home" aria-label="A Little Christmas World home">
@@ -211,6 +341,8 @@ export default function HomePage() {
             <i className="tree-light light-seven" /><i className="tree-light light-eight" />
             <i className="tree-bauble bauble-one" /><i className="tree-bauble bauble-two" />
             <i className="tree-bauble bauble-three" /><i className="tree-bauble bauble-four" />
+            <i className="tree-bauble bauble-five" /><i className="tree-bauble bauble-six" />
+            <i className="tree-bauble bauble-seven" /><i className="tree-bauble bauble-eight" />
           </div>
           <div className="present present-one"><span /></div>
           <div className="present present-two"><span /></div>

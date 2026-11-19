@@ -8,9 +8,7 @@ button,a{-webkit-tap-highlight-color:transparent}
 button{font:inherit}
 a{color:inherit;text-decoration:none}
 main{overflow:hidden;position:relative}
-.snow-layer{position:fixed;inset:0;pointer-events:none;z-index:20;overflow:hidden}
-.snowflake{position:absolute;top:-12px;background:#fff;border-radius:50%;filter:blur(.25px);animation:snowfall linear infinite}
-@keyframes snowfall{0%{transform:translate3d(0,-5vh,0);opacity:0}10%{opacity:.8}90%{opacity:.6}100%{transform:translate3d(35px,110vh,0);opacity:0}}
+.snowfall-canvas{position:fixed;inset:0;display:block;width:100vw;height:100vh;pointer-events:none;z-index:20;opacity:.88;mix-blend-mode:screen}
 .site-header{height:82px;padding:0 clamp(22px,6vw,100px);display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(232,201,120,.1);position:absolute;z-index:30;top:0;left:0;right:0;background:rgba(7,23,20,.3);backdrop-filter:blur(12px)}
 .brand{display:flex;gap:11px;align-items:center;letter-spacing:.17em;font-size:10px;color:#e8e3d8;white-space:nowrap}.brand b{color:var(--gold);font-weight:600}.brand-mark{color:var(--gold);font-size:24px}
 .main-nav{display:flex;gap:clamp(17px,3vw,42px);align-items:center}.main-nav button,.header-wish{border:0;background:none;color:#d1d8d1;font-size:11px;letter-spacing:.05em;cursor:pointer;transition:color .2s}.main-nav button:hover{color:var(--gold)}.header-wish{border:1px solid rgba(232,201,120,.42);padding:12px 17px;color:var(--gold)}.header-wish span{margin-left:12px}.music-toggle{border:0;background:transparent;color:#c7d2c8;font-size:9px;letter-spacing:.1em;cursor:pointer;white-space:nowrap}.music-toggle span{color:var(--gold);font-size:16px;margin-right:5px}.music-toggle[aria-pressed="true"]{color:var(--gold)}.mobile-menu-button{display:none}
@@ -31,4 +29,48 @@ h1,h2,p{margin-top:0}.hero h1{font:500 clamp(48px,6vw,82px)/1.12 var(--serif);le
 @media(max-width:1000px){.hero{padding-left:6vw;padding-right:6vw;grid-template-columns:1fr 1fr}.hero-art{transform:scale(.86);transform-origin:center right;margin-left:-50px}.site-header{padding:0 4vw}.main-nav{gap:16px}.main-nav button{font-size:10px}.section-pad{padding-left:7vw;padding-right:7vw}.memory-scene{height:210px}}
 @media(max-width:760px){.site-header{height:70px}.brand{font-size:8px;letter-spacing:.12em}.brand-mark{font-size:21px}.mobile-menu-button{display:flex;flex-direction:column;gap:6px;border:0;background:none;padding:10px}.mobile-menu-button span{width:22px;height:1px;background:var(--gold)}.main-nav{display:none;position:absolute;top:69px;left:0;right:0;padding:18px 25px 23px;background:#0a211c;border-bottom:1px solid var(--line);flex-direction:column;align-items:flex-start}.main-nav.is-open{display:flex}.main-nav button{font-size:11px;padding:8px 0}.header-wish{display:none}.music-toggle{font-size:8px}.hero{height:auto;min-height:950px;padding:135px 25px 70px;display:flex;flex-direction:column;align-items:flex-start}.hero-content{width:100%}.hero h1{font-size:clamp(48px,12vw,72px)}.hero-copy{font-size:12px;max-width:390px}.hero-note{margin-top:35px}.hero-art{width:100%;height:400px;transform:scale(.77);transform-origin:top center;margin:12px auto -75px;align-self:center}.hero-bottom{bottom:20px}.section-pad{padding:82px 24px}.countdown-wrap{gap:7px;margin:38px auto 25px}.countdown-card{width:clamp(64px,19vw,92px);height:91px}.countdown-card strong{font-size:31px}.countdown-card span{font-size:6px;letter-spacing:.12em}.countdown-separator{font-size:20px}.letter-section{grid-template-columns:1fr;gap:10px}.letter-art{height:270px;transform:scale(.88)}.letter-copy{text-align:center}.letter-copy p{margin-left:auto;margin-right:auto}.wish-card{padding:65px 22px 55px}.wish-decoration{font-size:45px}.wish-deco-left{left:15px;top:15px}.wish-deco-right{right:15px;bottom:12px}.wish-text{font-size:17px;min-height:90px}.memory-grid{grid-template-columns:1fr;gap:15px}.memory-scene{height:230px}.memories-heading{text-align:center}.memories-heading p{margin-left:auto;margin-right:auto}.game-panel{grid-template-columns:1fr;gap:35px;text-align:center}.game-copy p{margin-left:auto;margin-right:auto}.game-gifts{gap:9px;min-height:165px}.game-gift{transform:scale(.87);transform-origin:bottom center}.game-gift:hover:not(:disabled){transform:scale(.87) translateY(-8px)}.game-gift.selected{transform:scale(.87) translateY(-12px)}.game-hint{grid-column:1}.footer-bottom{gap:14px;flex-direction:column;align-items:center}.footer-message br{display:none}}
 @media(max-width:390px){.hero-actions{align-items:stretch;flex-direction:column;width:max-content}.hero-actions .button{justify-content:space-between}.hero-art{transform:scale(.66);margin-top:2px;margin-bottom:-115px}.countdown-separator{margin-left:-2px;margin-right:-2px}.countdown-card{height:78px}}
-@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}.snow-layer{display:none}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}.snowfall-canvas{opacity:.48}}
+
+
+/* Christmas palette refinement: a little more cranberry red, balanced with evergreen and gold. */
+:root{--red:#a72e40;--red-bright:#d8747d;--red-deep:#641d2b;--red-soft:#f1a1a3}
+.brand b{color:#d46f79}
+.header-wish{border-color:rgba(197,68,84,.66);background:rgba(125,28,46,.14);color:#f0a0a5}
+.header-wish:hover{background:rgba(159,41,57,.26);border-color:#d66b78}
+.hero{background:radial-gradient(ellipse at 13% 78%,rgba(126,25,45,.23),transparent 34%),radial-gradient(ellipse at 76% 48%,rgba(31,83,63,.32),transparent 35%),linear-gradient(115deg,#091b18 0%,#0b211d 52%,#102c24 100%)}
+.hero h1 em{color:#d8747d;text-shadow:0 0 26px rgba(188,55,73,.17)}
+.button-quiet{border-color:rgba(210,96,111,.4)}
+.button-quiet:hover{border-color:#d8747d;background:rgba(159,41,57,.12)}
+.play-icon{color:#e4868e}
+.countdown-card strong{color:#8f293b}
+.countdown-separator{color:#a64a58}
+.letter-section{background:radial-gradient(ellipse at 4% 57%,rgba(128,26,45,.2),transparent 44%),linear-gradient(120deg,#0b211d,#0e2c24)}
+.wax-seal{background:radial-gradient(circle at 32% 26%,#d75b67,#8c1e32 72%);box-shadow:0 3px 8px rgba(0,0,0,.2),0 0 20px rgba(159,41,57,.18)}
+.wish-card{background:linear-gradient(125deg,#4a1824 0%,#702333 48%,#481923 100%);box-shadow:0 22px 60px rgba(83,20,34,.14)}
+.wish-card:before,.wish-card:after{border-color:rgba(245,205,151,.22)}
+.surprise-section{background:radial-gradient(ellipse at 50% 68%,rgba(125,25,43,.2),transparent 43%),#0b211d}
+.game-section{background:radial-gradient(ellipse at 93% 50%,rgba(126,28,46,.2),transparent 38%),linear-gradient(120deg,#0c241e,#12382d)}
+.site-footer{background:radial-gradient(ellipse at 50% 0%,rgba(112,24,39,.22),transparent 58%),#071713}
+.site-footer h2 em{color:#d8747d}
+.back-top{border-color:rgba(216,116,125,.62);color:#e58b93}
+
+/* Richer, glossy ornaments: red becomes a visible part of the tree, not just tiny dots. */
+.tree-bauble{background:radial-gradient(circle at 30% 25%,#f18489 0%,#bd3b4d 42%,#781d31 100%);box-shadow:inset -3px -4px 5px rgba(0,0,0,.25),0 0 13px rgba(185,48,68,.28)}
+.bauble-one{top:145px;left:197px}
+.bauble-two{top:252px;left:116px;background:radial-gradient(circle at 30% 25%,#f5d98d,#bd8b3e 72%);box-shadow:inset -3px -4px 5px rgba(0,0,0,.2),0 0 11px rgba(232,201,120,.3)}
+.bauble-three{top:315px;left:190px}
+.bauble-four{top:200px;left:72px;background:radial-gradient(circle at 30% 25%,#f5d98d,#bd8b3e 72%)}
+.bauble-five{top:105px;left:145px;width:10px;height:10px}
+.bauble-six{top:255px;left:255px;width:15px;height:15px}
+.bauble-seven{top:345px;left:58px;width:11px;height:11px}
+.bauble-eight{top:375px;left:165px;width:9px;height:9px;background:radial-gradient(circle at 30% 25%,#f5d98d,#bd8b3e 72%)}
+.present-one{background:linear-gradient(110deg,#781d2c,#ba3548 55%,#861d31)}
+.present-one:after{background:#cb5260}
+.present-three{background:linear-gradient(110deg,#761d2d,#a72e40 55%,#641b2a)}
+.present-three:after{background:#ba4050}
+.red-bauble{background:radial-gradient(circle at 30% 25%,#f18489,#a72e40 72%);box-shadow:inset -9px -8px 16px rgba(0,0,0,.25),0 12px 20px rgba(0,0,0,.2),0 0 22px rgba(167,46,64,.16)}
+
+@media(max-width:760px){
+  .snowfall-canvas{opacity:.78}
+  .wish-card{background:linear-gradient(145deg,#4a1824 0%,#702333 52%,#481923 100%)}
+}

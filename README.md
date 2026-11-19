@@ -5,7 +5,7 @@ A public-facing, magical and interactive Christmas landing page built with Next.
 ## Included in this first version
 
 - Responsive one-page Christmas experience
-- Animated snowfall and illustrated CSS Christmas tree
+- Full-screen, layered canvas snowfall and illustrated CSS Christmas tree
 - Live countdown to the next December 25
 - Interactive Christmas letter modal
 - Randomizable Christmas wish cards
@@ -13,7 +13,8 @@ A public-facing, magical and interactive Christmas landing page built with Next.
 - Illustrated Christmas moodboard gallery
 - Small hidden-star gift game
 - Optional original synthesized winter chimes (no external music file required)
-- Reduced-motion support and basic keyboard accessibility
+- Full-viewport snowfall with varied flake sizes, depth, drifting wind and reduced-motion support
+- Basic keyboard accessibility
 
 ## Run locally
 
