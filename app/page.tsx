@@ -16,6 +16,8 @@ type SnowParticle = {
   opacity: number;
 };
 
+const MUSIC_SRC = "/audio/background.mp3";
+
 const wishes = [
   "May your days be merry, your nights be bright, and your heart be light.",
   "Wishing you a season wrapped in warmth, wonder, and a little bit of magic.",
@@ -56,9 +58,8 @@ export default function HomePage() {
   const [chosenGift, setChosenGift] = useState<number | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const [musicOn, setMusicOn] = useState(false);
-  const audioContextRef = useRef<AudioContext | null>(null);
-  const musicTimerRef = useRef<number | null>(null);
-  const noteIndexRef = useRef(0);
+  const [musicError, setMusicError] = useState("");
+  const audioRef = useRef<HTMLAudioElement | null>(null);
   const snowCanvasRef = useRef<HTMLCanvasElement | null>(null);
 
   useEffect(() => {
@@ -217,52 +218,34 @@ export default function HomePage() {
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [letterOpen]);
 
-  const stopMusic = () => {
-    if (musicTimerRef.current !== null) {
-      window.clearInterval(musicTimerRef.current);
-      musicTimerRef.current = null;
-    }
-    if (audioContextRef.current) {
-      void audioContextRef.current.close();
-      audioContextRef.current = null;
-    }
-    setMusicOn(false);
-  };
+  const toggleMusic = async () => {
+    const audio = audioRef.current;
+    if (!audio) return;
 
-  const toggleMusic = () => {
-    if (musicOn) {
-      stopMusic();
+    if (!audio.paused) {
+      audio.pause();
       return;
     }
 
-    const context = new window.AudioContext();
-    audioContextRef.current = context;
-    const melody = [659.25, 783.99, 880, 783.99, 698.46, 587.33, 523.25, 587.33, 659.25, 783.99];
-    const playChime = () => {
-      const frequency = melody[noteIndexRef.current % melody.length];
-      noteIndexRef.current += 1;
-      const oscillator = context.createOscillator();
-      const volume = context.createGain();
-      const now = context.currentTime;
-      oscillator.type = "sine";
-      oscillator.frequency.setValueAtTime(frequency, now);
-      volume.gain.setValueAtTime(0.0001, now);
-      volume.gain.exponentialRampToValueAtTime(0.045, now + 0.035);
-      volume.gain.exponentialRampToValueAtTime(0.0001, now + 0.42);
-      oscillator.connect(volume);
-      volume.connect(context.destination);
-      oscillator.start(now);
-      oscillator.stop(now + 0.44);
-    };
-
-    void context.resume().then(playChime).catch(() => setMusicOn(false));
-    musicTimerRef.current = window.setInterval(playChime, 540);
-    setMusicOn(true);
+    setMusicError("");
+    try {
+      audio.volume = 0.45;
+      await audio.play();
+    } catch (error) {
+      console.error(`Unable to play ${audio.currentSrc || MUSIC_SRC}.`, error);
+      setMusicOn(false);
+      setMusicError(audio.error
+        ? "The music file could not be loaded. Make sure public/audio/background.mp3 is included in the deployment."
+        : "Music playback was blocked. Please try again.");
+    }
   };
 
   useEffect(() => () => {
-    if (musicTimerRef.current !== null) window.clearInterval(musicTimerRef.current);
-    if (audioContextRef.current) void audioContextRef.current.close();
+    const audio = audioRef.current;
+    if (audio) {
+      audio.pause();
+      audio.currentTime = 0;
+    }
   }, []);
 
   const startGame = () => {
@@ -284,6 +267,22 @@ export default function HomePage() {
   return (
     <main>
       <canvas ref={snowCanvasRef} className="snowfall-canvas" aria-hidden="true" />
+      <audio
+        ref={audioRef}
+        src={MUSIC_SRC}
+        loop
+        preload="none"
+        onPlay={() => {
+          setMusicError("");
+          setMusicOn(true);
+        }}
+        onPause={() => setMusicOn(false)}
+        onError={() => {
+          setMusicOn(false);
+          setMusicError("The music file could not be loaded. Make sure public/audio/background.mp3 is included in the deployment.");
+        }}
+      />
+      {musicError && <p className="music-error" role="status">{musicError}</p>}
 
       <header className="site-header">
         <a className="brand" href="#home" aria-label="A Little Christmas World home">
@@ -306,7 +305,15 @@ export default function HomePage() {
           <button onClick={() => scrollTo("surprise")}>Surprise</button>
           <button onClick={() => scrollTo("memories")}>Memories</button>
         </nav>
-        <button className="music-toggle" type="button" onClick={toggleMusic} aria-pressed={musicOn}><span>♫</span> {musicOn ? "Sound on" : "Sound off"}</button>
+        <button
+          className="music-toggle"
+          type="button"
+          onClick={toggleMusic}
+          aria-pressed={musicOn}
+          aria-label={musicOn ? "Pause Viva La Vida" : "Play Viva La Vida"}
+        >
+          <span>♫</span> {musicOn ? "Sound on" : "Sound off"}
+        </button>
         <button className="header-wish" onClick={() => scrollTo("wishes")}>Make a wish <span>↗</span></button>
       </header>
 
