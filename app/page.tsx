@@ -241,6 +241,7 @@ export default function HomePage() {
 
     setMusicError("");
     try {
+      await resumeAudio();
       audio.volume = 0.45;
       await audio.play();
     } catch (error) {
@@ -278,6 +279,8 @@ export default function HomePage() {
 
   return (
     <main>
+      <ChristmasScrollReveal />
+      <ChristmasIntro show={introVisible} onEnter={() => setIntroVisible(false)} />
       <canvas ref={snowCanvasRef} className="snowfall-canvas" aria-hidden="true" />
       <audio
         ref={audioRef}
@@ -325,13 +328,15 @@ export default function HomePage() {
           aria-label={musicOn ? "Pause Viva La Vida" : "Play Viva La Vida"}
         >
           <span>♫</span> {musicOn ? "Sound on" : "Sound off"}
+          <MusicVisualizer analyserRef={analyserRef} active={musicOn} />
         </button>
         <button className="header-wish" onClick={() => scrollTo("wishes")}>Make a wish <span>↗</span></button>
       </header>
 
-      <section className="hero" id="home">
+      <section className={musicOn ? "hero music-active" : "hero"} id="home">
         <div className="hero-glow hero-glow-one" aria-hidden="true" />
         <div className="hero-glow hero-glow-two" aria-hidden="true" />
+        <ChristmasAtmosphere />
         <div className="hero-content">
           <div className="eyebrow"><span /> THE MOST WONDERFUL TIME OF THE YEAR <span /></div>
           <h1>Let the world<br />feel a little more <em>magic.</em></h1>
