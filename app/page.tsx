@@ -71,9 +71,30 @@ export default function HomePage() {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const snowCanvasRef = useRef<HTMLCanvasElement | null>(null);
   const [introVisible, setIntroVisible] = useState(true);
+  const [motionEnabled, setMotionEnabled] = useState(false);
 
   const { analyserRef, resumeAudio } =
   useChristmasAudioAnalyser(audioRef);
+
+  useEffect(() => {
+    const motionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const updatePreference = () => setMotionEnabled(!motionQuery.matches);
+    updatePreference();
+    motionQuery.addEventListener("change", updatePreference);
+    return () => motionQuery.removeEventListener("change", updatePreference);
+  }, []);
+
+  useEffect(() => {
+    const root = document.documentElement;
+    root.dataset.motionEnabled = String(motionEnabled);
+    window.dispatchEvent(new Event("christmas-motion-change"));
+
+    return () => {
+      delete root.dataset.motionEnabled;
+      window.dispatchEvent(new Event("christmas-motion-change"));
+    };
+  }, [motionEnabled]);
+
   useEffect(() => {
     setCountdown(getCountdown(target));
     const timer = window.setInterval(() => setCountdown(getCountdown(target)), 1000);
@@ -92,7 +113,9 @@ export default function HomePage() {
     let frameId = 0;
     let previousTime = 0;
     let windPhase = Math.random() * Math.PI * 2;
-    let reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const motionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+    let reducedMotion =
+      motionQuery.matches && document.documentElement.dataset.motionEnabled !== "true";
 
     const createParticle = (randomY = true): SnowParticle => {
       const radius = 0.55 + Math.pow(Math.random(), 1.65) * 3.15;
@@ -195,8 +218,9 @@ export default function HomePage() {
       }
     };
 
-    const onMotionPreferenceChange = (event: MediaQueryListEvent) => {
-      reducedMotion = event.matches;
+    const onMotionPreferenceChange = () => {
+      reducedMotion =
+        motionQuery.matches && document.documentElement.dataset.motionEnabled !== "true";
       window.cancelAnimationFrame(frameId);
       previousTime = 0;
       resize();
@@ -209,14 +233,15 @@ export default function HomePage() {
     if (!reducedMotion) frameId = window.requestAnimationFrame(animate);
     window.addEventListener("resize", resize, { passive: true });
     document.addEventListener("visibilitychange", onVisibilityChange);
-    const motionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
     motionQuery.addEventListener("change", onMotionPreferenceChange);
+    window.addEventListener("christmas-motion-change", onMotionPreferenceChange);
 
     return () => {
       window.cancelAnimationFrame(frameId);
       window.removeEventListener("resize", resize);
       document.removeEventListener("visibilitychange", onVisibilityChange);
       motionQuery.removeEventListener("change", onMotionPreferenceChange);
+      window.removeEventListener("christmas-motion-change", onMotionPreferenceChange);
       context.clearRect(0, 0, width, height);
     };
   }, []);
@@ -279,8 +304,14 @@ export default function HomePage() {
 
   return (
     <main>
-      <ChristmasScrollReveal />
-      <ChristmasIntro show={introVisible} onEnter={() => setIntroVisible(false)} />
+      <ChristmasScrollReveal motionEnabled={motionEnabled} />
+      <ChristmasIntro
+        show={introVisible}
+        onEnter={() => {
+          setIntroVisible(false);
+          setMotionEnabled(true);
+        }}
+      />
       <canvas ref={snowCanvasRef} className="snowfall-canvas" aria-hidden="true" />
       <audio
         ref={audioRef}
@@ -336,7 +367,7 @@ export default function HomePage() {
       <section className={musicOn ? "hero music-active" : "hero"} id="home">
         <div className="hero-glow hero-glow-one" aria-hidden="true" />
         <div className="hero-glow hero-glow-two" aria-hidden="true" />
-        <ChristmasAtmosphere />
+        <ChristmasAtmosphere motionEnabled={motionEnabled} />
         <div className="hero-content">
           <div className="eyebrow"><span /> THE MOST WONDERFUL TIME OF THE YEAR <span /></div>
           <h1>Let the world<br />feel a little more <em>magic.</em></h1>

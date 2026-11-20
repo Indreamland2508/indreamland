@@ -7,16 +7,20 @@ type ChristmasIntroProps = {
   onEnter: () => void;
 };
 
+type MotionEffectsProps = {
+  motionEnabled: boolean;
+};
+
 /**
  * Place this component inside the .hero section.
  * It renders aurora, shooting stars, a Santa fly-by and desktop cursor sparkles.
  */
-export function ChristmasAtmosphere() {
+export function ChristmasAtmosphere({ motionEnabled }: MotionEffectsProps) {
   useEffect(() => {
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
     const coarsePointer = window.matchMedia("(pointer: coarse)");
 
-    if (reducedMotion.matches || coarsePointer.matches) return;
+    if ((reducedMotion.matches && !motionEnabled) || coarsePointer.matches) return;
 
     let lastSpawn = 0;
     const symbols = ["✦", "✧", "·", "✴"];
@@ -38,7 +42,7 @@ export function ChristmasAtmosphere() {
 
     window.addEventListener("pointermove", handlePointerMove, { passive: true });
     return () => window.removeEventListener("pointermove", handlePointerMove);
-  }, []);
+  }, [motionEnabled]);
 
   return (
     <>
@@ -81,9 +85,10 @@ export function ChristmasIntro({ show, onEnter }: ChristmasIntroProps) {
 }
 
 /** Adds a gentle reveal to sections as they enter the viewport. */
-export function ChristmasScrollReveal() {
+export function ChristmasScrollReveal({ motionEnabled }: MotionEffectsProps) {
   useEffect(() => {
-    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const reduceMotion =
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches && !motionEnabled;
     const sections = Array.from(
       document.querySelectorAll<HTMLElement>("main > section:not(.hero), main > footer")
     );
@@ -111,7 +116,7 @@ export function ChristmasScrollReveal() {
     });
 
     return () => observer.disconnect();
-  }, []);
+  }, [motionEnabled]);
 
   return null;
 }
