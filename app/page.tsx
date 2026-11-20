@@ -26,6 +26,8 @@ type SnowParticle = {
 };
 
 const MUSIC_SRC = "/audio/background.mp3";
+const TREE_IMAGE_SRC =
+  "https://images.pexels.com/photos/1708601/pexels-photo-1708601.jpeg?auto=compress&cs=tinysrgb&w=1200";
 
 const wishes = [
   "May your days be merry, your nights be bright, and your heart be light.",
@@ -378,33 +380,12 @@ export default function HomePage() {
           </div>
           <div className="hero-note"><span className="tiny-star">✦</span> MADE OF LITTLE MOMENTS & BIG MAGIC</div>
         </div>
-        <div className="hero-art" aria-label="Illustration of a glowing Christmas tree in a winter night">
-          <div className="moon" />
-          <div className="orbit orbit-one" />
-          <div className="orbit orbit-two" />
-          <div className="tree-shadow" />
-          <div className="christmas-tree">
-            <div className="tree-layer layer-one" />
-            <div className="tree-layer layer-two" />
-            <div className="tree-layer layer-three" />
-            <div className="tree-layer layer-four" />
-            <div className="tree-trunk" />
-            <span className="tree-star">✦</span>
-            <i className="tree-light light-one" /><i className="tree-light light-two" />
-            <i className="tree-light light-three" /><i className="tree-light light-four" />
-            <i className="tree-light light-five" /><i className="tree-light light-six" />
-            <i className="tree-light light-seven" /><i className="tree-light light-eight" />
-            <i className="tree-bauble bauble-one" /><i className="tree-bauble bauble-two" />
-            <i className="tree-bauble bauble-three" /><i className="tree-bauble bauble-four" />
-            <i className="tree-bauble bauble-five" /><i className="tree-bauble bauble-six" />
-            <i className="tree-bauble bauble-seven" /><i className="tree-bauble bauble-eight" />
+        <div className="hero-art" aria-label="Photograph of a decorated Christmas tree in a cozy room">
+          <div className="hero-tree-photo" aria-hidden="true">
+            <img src={TREE_IMAGE_SRC} alt="" draggable={false} />
           </div>
-          <div className="present present-one"><span /></div>
-          <div className="present present-two"><span /></div>
-          <div className="present present-three"><span /></div>
           <div className="little-spark spark-one">✦</div><div className="little-spark spark-two">✧</div>
           <div className="little-spark spark-three">✦</div><div className="little-spark spark-four">·</div>
-          <div className="hill hill-back" /><div className="hill hill-front" />
           <div className="art-caption"><span>✧</span> A season sprinkled with wonder</div>
         </div>
         <div className="hero-bottom"><span>SCROLL TO EXPLORE</span><i /></div>

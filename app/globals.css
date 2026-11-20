@@ -98,12 +98,16 @@ h1,h2,p{margin-top:0}.hero h1{font:500 clamp(48px,6vw,82px)/1.12 var(--serif);le
 .shooting-star-three{top:12%;left:48%;animation:shooting-star 13s 8s ease-in infinite}
 @keyframes shooting-star{0%,76%{opacity:0;transform:translate3d(0,0,0) rotate(-28deg)}78%{opacity:1}88%{opacity:0;transform:translate3d(220px,115px,0) rotate(-28deg)}100%{opacity:0}}
 
-/* Santa's short fly-by. Emoji are used as a no-asset placeholder; an SVG illustration can replace them later. */
-.santa-flyby{position:absolute;z-index:5;top:17%;left:-36%;white-space:nowrap;pointer-events:none;filter:drop-shadow(0 0 13px rgba(241,207,131,.32));animation:santa-cross-sky 19s 4s ease-in-out infinite}
-.santa-flyby span{display:block;font-size:clamp(22px,3vw,38px);letter-spacing:-.18em;animation:santa-bob 1.5s ease-in-out infinite alternate}
-.santa-flyby i{position:absolute;left:6%;right:0;top:70%;height:18px;background:radial-gradient(ellipse,rgba(232,201,120,.28),transparent 70%);filter:blur(7px)}
-@keyframes santa-cross-sky{0%,8%{transform:translateX(0) translateY(0)}12%{opacity:1}72%{transform:translateX(155vw) translateY(-45px);opacity:1}74%,100%{transform:translateX(155vw) translateY(-45px);opacity:0}}
-@keyframes santa-bob{from{transform:translateY(-3px) rotate(-1deg)}to{transform:translateY(5px) rotate(1deg)}}
+/* A masked photographic scene makes the fly-by feel like it belongs in the night sky. */
+.santa-flyby{position:fixed;z-index:3;top:clamp(115px,24vh,225px);left:-42vw;width:clamp(320px,42vw,540px);pointer-events:none;visibility:hidden;will-change:transform,opacity}
+.santa-flyby.is-visible{visibility:visible;animation:santa-cross-sky 13.5s cubic-bezier(.35,.05,.28,1) both}
+.santa-flyby img{display:block;width:100%;height:auto;filter:drop-shadow(0 12px 26px rgba(0,0,0,.4));mask-image:radial-gradient(ellipse 66% 57% at 50% 49%,#000 57%,rgba(0,0,0,.88) 73%,transparent 100%);-webkit-mask-image:radial-gradient(ellipse 66% 57% at 50% 49%,#000 57%,rgba(0,0,0,.88) 73%,transparent 100%)}
+.santa-trail{position:absolute;z-index:-1;left:-12%;top:58%;width:40%;height:5px;background:linear-gradient(90deg,transparent,rgba(255,230,167,.75),transparent);filter:blur(5px);opacity:.85}
+@keyframes santa-cross-sky{0%{opacity:0;transform:translate3d(0,40px,0) rotate(-5deg) scale(.78)}12%{opacity:1}58%{opacity:1;transform:translate3d(53vw,-45px,0) rotate(-1deg) scale(1)}86%{opacity:.9;transform:translate3d(88vw,-130px,0) rotate(4deg) scale(.9)}100%{opacity:0;transform:translate3d(calc(100vw + 100%),-185px,0) rotate(8deg) scale(.8)}}
+
+.hero-tree-photo{position:absolute;inset:20px -4px 30px;overflow:hidden;mask-image:radial-gradient(ellipse 76% 65% at 64% 48%,#000 52%,rgba(0,0,0,.84) 76%,transparent 100%);-webkit-mask-image:radial-gradient(ellipse 76% 65% at 64% 48%,#000 52%,rgba(0,0,0,.84) 76%,transparent 100%)}
+.hero-tree-photo img{display:block;width:100%;height:100%;object-fit:cover;object-position:88% 50%;filter:brightness(.78) saturate(.88) contrast(1.06)}
+.hero-tree-photo:after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(9,27,24,.4),transparent 42%,rgba(9,27,24,.08))}
 
 /* Magical cursor particles. Pointer effects are disabled on touch screens and reduced-motion devices. */
 .magic-cursor-particle{position:fixed;z-index:1000;pointer-events:none;color:#f0d48b;font-size:12px;text-shadow:0 0 10px rgba(255,220,147,.95);animation:cursor-sparkle .8s ease-out forwards;transform:translate(-50%,-50%)}
@@ -145,5 +149,5 @@ h1,h2,p{margin-top:0}.hero h1{font:500 clamp(48px,6vw,82px)/1.12 var(--serif);le
 .gift-burst span:nth-child(1){--dx:-105px;--dy:-90px}.gift-burst span:nth-child(2){--dx:-65px;--dy:-130px;animation-delay:.05s}.gift-burst span:nth-child(3){--dx:-15px;--dy:-145px;animation-delay:.08s}.gift-burst span:nth-child(4){--dx:43px;--dy:-132px;animation-delay:.12s}.gift-burst span:nth-child(5){--dx:100px;--dy:-90px;animation-delay:.16s}.gift-burst span:nth-child(6){--dx:118px;--dy:-28px;animation-delay:.2s}.gift-burst span:nth-child(7){--dx:80px;--dy:25px;animation-delay:.24s}.gift-burst span:nth-child(8){--dx:-100px;--dy:-25px;animation-delay:.28s}
 @keyframes gift-particle-burst{0%{opacity:0;transform:translate(-50%,-50%) scale(.2)}15%{opacity:1}100%{opacity:0;transform:translate(calc(-50% + var(--dx)),calc(-50% + var(--dy))) scale(1.4)}}
 
-@media(max-width:760px){.santa-flyby{top:11%;animation-duration:24s}.aurora{filter:blur(58px)}.music-visualizer{width:42px}.intro-star-one{left:8%}.intro-star-two{right:8%}}
+@media(max-width:760px){.santa-flyby{top:clamp(120px,24vh,200px);left:-58vw;width:min(84vw,410px)}.aurora{filter:blur(58px)}.music-visualizer{width:42px}.intro-star-one{left:8%}.intro-star-two{right:8%}}
 @media(prefers-reduced-motion:reduce){html:not([data-motion-enabled="true"]) .aurora,html:not([data-motion-enabled="true"]) .shooting-star,html:not([data-motion-enabled="true"]) .santa-flyby,html:not([data-motion-enabled="true"]) .santa-flyby span,html:not([data-motion-enabled="true"]) .magic-cursor-particle,html:not([data-motion-enabled="true"]) .intro-star,html:not([data-motion-enabled="true"]) .christmas-intro:before,html:not([data-motion-enabled="true"]) .christmas-intro:after{animation:none!important}html:not([data-motion-enabled="true"]) .christmas-reveal{opacity:1;transform:none;transition:none}}

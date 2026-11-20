@@ -1,6 +1,9 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+
+const SANTA_FLYBY_SRC =
+  "https://images.openai.com/static-rsc-4/PJKTyXTTjvHIxpX00UFxSb7y4pcZ8LdcbDqxtltoZHXDr3qAib03JJfa6sMWC4HCpvj3S65Mss_PhrXISYaJIeFq0Ltj-Kt3FgUHyMYyRhTY6YdEz2-QJVA7WE8XeWmlkly0ot4bNr5fLj82luw9ZaEGamF2QoOq0A_yqC8Ub0I?purpose=inline";
 
 type ChristmasIntroProps = {
   show: boolean;
@@ -16,6 +19,8 @@ type MotionEffectsProps = {
  * It renders aurora, shooting stars, a Santa fly-by and desktop cursor sparkles.
  */
 export function ChristmasAtmosphere({ motionEnabled }: MotionEffectsProps) {
+  const [santaVisible, setSantaVisible] = useState(false);
+
   useEffect(() => {
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
     const coarsePointer = window.matchMedia("(pointer: coarse)");
@@ -44,6 +49,51 @@ export function ChristmasAtmosphere({ motionEnabled }: MotionEffectsProps) {
     return () => window.removeEventListener("pointermove", handlePointerMove);
   }, [motionEnabled]);
 
+  useEffect(() => {
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+    if (reducedMotion.matches && !motionEnabled) {
+      setSantaVisible(false);
+      return;
+    }
+
+    let startTimer = 0;
+    let finishTimer = 0;
+
+    const clearTimers = () => {
+      window.clearTimeout(startTimer);
+      window.clearTimeout(finishTimer);
+    };
+
+    const scheduleFlyby = (delay: number) => {
+      startTimer = window.setTimeout(() => {
+        if (document.hidden) {
+          scheduleFlyby(10_000 + Math.random() * 12_000);
+          return;
+        }
+
+        setSantaVisible(true);
+        finishTimer = window.setTimeout(() => {
+          setSantaVisible(false);
+          scheduleFlyby(30_000 + Math.random() * 30_000);
+        }, 14_000);
+      }, delay);
+    };
+
+    const onVisibilityChange = () => {
+      clearTimers();
+      setSantaVisible(false);
+      if (!document.hidden) scheduleFlyby(8_000 + Math.random() * 12_000);
+    };
+
+    scheduleFlyby(8_000 + Math.random() * 12_000);
+    document.addEventListener("visibilitychange", onVisibilityChange);
+
+    return () => {
+      clearTimers();
+      document.removeEventListener("visibilitychange", onVisibilityChange);
+    };
+  }, [motionEnabled]);
+
   return (
     <>
       <div className="aurora-sky" aria-hidden="true">
@@ -56,9 +106,9 @@ export function ChristmasAtmosphere({ motionEnabled }: MotionEffectsProps) {
         <i className="shooting-star shooting-star-two" />
         <i className="shooting-star shooting-star-three" />
       </div>
-      <div className="santa-flyby" aria-hidden="true">
-        <span>🦌 🦌 🛷 🎅</span>
-        <i />
+      <div className={`santa-flyby${santaVisible ? " is-visible" : ""}`} aria-hidden="true">
+        <span className="santa-trail" />
+        <img src={SANTA_FLYBY_SRC} alt="" draggable={false} />
       </div>
     </>
   );
