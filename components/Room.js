@@ -1,11 +1,10 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
 import { getSupabase } from '../lib/supabase';
-import SCENE from './sceneMarkup';
 
 const AVS = ['🎅', '🤶', '🦌', '⛄', '🧝', '🐻', '🐱', '🎁'];
 const COLS = ['#ffb86b', '#8fd6a8', '#9cc9ff', '#ff9ec0', '#e6c3ff', '#fff08a'];
-const SEATS = [[400, 432], [500, 432], [600, 432], [274, 486], [726, 486], [390, 586], [500, 598], [610, 586]];
+const SEAT_COUNT = 8;
 const rid = () => Math.random().toString(36).slice(2, 10) + Date.now().toString(36);
 const ls = (k, v) => { try { return v === undefined ? localStorage.getItem(k) : localStorage.setItem(k, v); } catch { return null; } };
 const colorOf = (n = '') => { let h = 0; for (const c of n) h = (h * 31 + c.charCodeAt(0)) | 0; return COLS[Math.abs(h) % COLS.length]; };
@@ -133,72 +132,143 @@ export default function Room() {
   };
   const post = (e) => {
     e.preventDefault(); const t = text.trim(); if (!t) return; setText('');
-    getSupabase().from('messages').insert({ name, av, uid: R.uid, text: t.slice(0, 500) }).then(({ error }) => error && flash('Không gửi được tin nhắn.'));
+    const sb = getSupabase();
+    if (!sb) return flash('Chưa cấu hình kết nối tin nhắn.');
+    sb.from('messages').insert({ name, av, uid: R.uid, text: t.slice(0, 500) })
+      .then(({ error }) => error && flash('Không gửi được tin nhắn. Hãy thử lại nhé.'))
+      .catch(() => flash('Kết nối đang không ổn định. Hãy thử lại sau.'));
   };
   const online = Object.values(peers).filter((p) => p.rtc).length;
 
+  const seatLabels = ['Gần lò sưởi', 'Ghế nhung đỏ', 'Bên cửa sổ', 'Sofa trái', 'Sofa phải', 'Góc ấm áp', 'Trung tâm', 'Gần cây thông'];
+
   return (
     <>
-      <div className="stage">
-        <div className="top"><div className="ti">Phòng khách Giáng sinh</div><div className="cnt">🏠 {online} người</div></div>
-        <div className="scenewrap" onClick={(e) => e.target.closest && e.target.closest('#tree') && setTreeOff((v) => !v)}>
-          <div className={'scene' + (treeOff ? ' off' : '')} dangerouslySetInnerHTML={{ __html: SCENE }} />
-          <svg className="seatsvg" viewBox="0 0 1000 640" preserveAspectRatio="xMidYMid slice">
-            {SEATS.map(([x, y], i) => {
-              const k = occ[i], p = k && peers[k], me = k === R.id, sp = p && p.speak && p.mic, nm = String(p?.name || 'Khách').slice(0, 16), w = nm.length * 7.4 + 14;
+      <main className={'christmas-app' + (treeOff ? ' lights-muted' : '')}>
+        <div className="room-backdrop" role="img" aria-label="Phòng khách được trang trí cây thông và lò sưởi Giáng sinh" />
+        <div className="backdrop-shade" />
+        <div className="snowfall" aria-hidden="true" />
+
+        <header className="site-header">
+          <div className="brand-lockup" aria-label="Merry Christmas">
+            <span className="brand-seal">✦</span>
+            <span className="brand-name">
+              <strong>MERRY CHRISTMAS</strong>
+              <small>THE CHRISTMAS LIVING ROOM</small>
+            </span>
+          </div>
+          <div className="header-right">
+            <span className="header-decoration" aria-hidden="true">✧</span>
+            <div className="live-counter"><span className="live-dot" /> {online} người đang ở đây</div>
+          </div>
+        </header>
+
+        <section className="hero" aria-label="Lời chúc Giáng sinh">
+          <div className="hero-kicker">THE MOST WONDERFUL TIME OF THE YEAR</div>
+          <h1><span>Merry</span><span>Christmas</span></h1>
+          <p>Một chút ấm áp, một chút yêu thương <span className="hero-sparkle">✦</span> Cùng nhau tạo nên mùa Giáng sinh đáng nhớ.</p>
+        </section>
+
+        <section className="guest-panel" aria-label="Chọn chỗ ngồi">
+          <div className="panel-heading">
+            <div className="panel-title">
+              <span className="panel-eyebrow">TAKE A SEAT · FEEL AT HOME</span>
+              <h2>Quây quần bên lò sưởi</h2>
+            </div>
+            <div className="seat-legend">
+              <span className="legend-item"><i className="legend-dot" /> Còn trống</span>
+              <span className="legend-item"><i className="legend-dot occupied" /> Đang ngồi</span>
+            </div>
+          </div>
+          <div className="seat-grid">
+            {Array.from({ length: SEAT_COUNT }, (_, i) => {
+              const k = occ[i], p = k && peers[k], me = k === R.id;
+              const occupiedByOther = Boolean(k && !me);
+              const displayName = String(p?.name || (me ? name : 'Khách')).slice(0, 14);
               return (
-                <g key={i} className="seat" onClick={() => sit(i)}>
-                  {!p ? (<g className="free"><circle cx={x} cy={y} r="22" fill="#0004" stroke="#fff3e0" strokeWidth="2" strokeDasharray="5 4" /><text x={x} y={y + 7} textAnchor="middle" fontSize="22" fill="#fff3e0">+</text></g>) : (<>
-                    <circle cx={x} cy={y} r="26" fill="#3a2a20" stroke={sp ? '#5dff9a' : '#ffcf6b'} strokeWidth={sp ? 5 : 3} className={sp ? 'spk' : ''} />
-                    <text x={x} y={y + 10} textAnchor="middle" fontSize="28">{p.av || '🙂'}</text>
-                    <rect x={x - w / 2} y={y + 30} width={w} height="17" rx="8.5" fill="#000b" />
-                    <text x={x} y={y + 43} textAnchor="middle" fontSize="11" fill={me ? '#ffcf6b' : '#fff3e0'}>{nm}</text>
-                    {p.mic && <text x={x + 20} y={y - 16} fontSize="14" textAnchor="middle">🎙️</text>}
-                  </>)}
-                </g>
+                <button
+                  key={i}
+                  type="button"
+                  className={'seat-card' + (me ? ' is-mine' : '') + (occupiedByOther ? ' is-occupied' : '')}
+                  onClick={() => sit(i)}
+                  disabled={occupiedByOther}
+                  aria-label={occupiedByOther ? `${seatLabels[i]} đã có người ngồi` : me ? `Bạn đang ngồi ${seatLabels[i]}` : `Chọn ${seatLabels[i]}`}
+                  title={occupiedByOther ? `${displayName} đang ngồi` : `Chọn ${seatLabels[i]}`}
+                >
+                  <span className="seat-avatar">{p?.av || (me ? av : '＋')}</span>
+                  <span className="seat-copy">
+                    <small>{p ? (me ? 'CHỖ CỦA BẠN' : 'ĐANG CÓ KHÁCH') : 'CHỖ TRỐNG'}</small>
+                    <strong>{p ? displayName : seatLabels[i]}</strong>
+                  </span>
+                  {p?.mic && <span className="seat-mic" title="Micro đang bật">🎙</span>}
+                  <span className="seat-index">0{i + 1}</span>
+                </button>
               );
             })}
-          </svg>
-        </div>
-        {joined && mySeat < 0 && <div className="hint">Bấm vào một chỗ ngồi trống để vào ngồi 🪑</div>}
-        <div className="bar">
-          <button className={micOn === null ? '' : micOn ? 'on' : 'warn'} onClick={toggleMic}>{micOn === null ? '🎙️ Bật mic' : micOn ? '🎙️ Đang nói (bấm để tắt)' : '🔇 Đã tắt mic'}</button>
-          {mySeat >= 0 && <button onClick={stand}>🧍 Đứng dậy</button>}
-          <button onClick={() => setChatOpen((v) => !v)}>💬 Nhắn tin</button>
-        </div>
-      </div>
+          </div>
+        </section>
 
-      <aside className={'chat' + (chatOpen ? ' open' : '')}>
-        <h2>🔥 Tin nhắn của cả nhà <button onClick={() => setChatOpen(false)} aria-label="Đóng">✕</button></h2>
+        <nav className="control-dock" aria-label="Điều khiển phòng">
+          <button className={'action-btn' + (micOn === true ? ' mic-on' : micOn === false ? ' mic-off' : ' primary')} onClick={toggleMic} type="button">
+            <span className="btn-icon">{micOn === false ? '🔇' : '🎙️'}</span>
+            {micOn === null ? 'Bật micro' : micOn ? 'Đang bật mic' : 'Đã tắt mic'}
+          </button>
+          {mySeat >= 0 && <button className="action-btn" onClick={stand} type="button"><span className="btn-icon">🪑</span> Đứng dậy</button>}
+          <button className={'action-btn' + (treeOff ? '' : ' selected')} onClick={() => setTreeOff((v) => !v)} type="button"><span className="btn-icon">✨</span> {treeOff ? 'Bật ánh đèn' : 'Đèn lung linh'}</button>
+          <button className="action-btn" onClick={() => setChatOpen((v) => !v)} type="button"><span className="btn-icon">💌</span> Nhắn tin</button>
+        </nav>
+      </main>
+
+      <button className={'chat-scrim' + (chatOpen ? ' show' : '')} aria-label="Đóng khung chat" onClick={() => setChatOpen(false)} tabIndex={chatOpen ? 0 : -1} />
+      <aside className={'chat-drawer' + (chatOpen ? ' open' : '')} aria-label="Tin nhắn của cả nhà" aria-hidden={!chatOpen}>
+        <div className="chat-header">
+          <div className="chat-heading">
+            <span className="chat-emblem">💌</span>
+            <div><h2>Lời nhắn yêu thương</h2><p>{online} thành viên đang ở trong phòng</p></div>
+          </div>
+          <button className="chat-close" onClick={() => setChatOpen(false)} aria-label="Đóng" type="button">×</button>
+        </div>
+        <div className="chat-welcome">🎄 Hãy gửi một lời chúc nhỏ để mùa lễ hội của mọi người thêm ấm áp nhé!</div>
         <div id="msgs" ref={box}>
-          {!msgs.length && <div className="empty">Chưa có tin nhắn nào. Hãy gửi lời chúc đầu tiên nhé 🎄</div>}
+          {!msgs.length && <div className="empty"><span>✨</span>Chưa có lời nhắn nào.<br />Hãy là người đầu tiên gửi lời chúc Giáng sinh!</div>}
           {msgs.map((m) => (
             <div key={m.id} className={'m' + (m.uid === R.uid ? ' me' : '')}>
               <div className="av">{m.av || '🎄'}</div>
-              <div className="b"><div className="n" style={{ color: colorOf(m.name) }}>{m.name}</div><div className="t">{m.text}</div>
-                <div className="h">{new Date(m.created_at).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}</div></div>
+              <div className="message-content">
+                <div className="b">
+                  <div className="n" style={{ color: colorOf(m.name) }}>{m.name}</div>
+                  <div className="t">{m.text}</div>
+                  <div className="h">{new Date(m.created_at).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}</div>
+                </div>
+              </div>
             </div>
           ))}
         </div>
-        <form className="row" onSubmit={post} autoComplete="off">
-          <input value={text} onChange={(e) => setText(e.target.value)} placeholder="Nói điều gì đó với cả nhà…" maxLength={500} />
-          <button className="btn" type="submit">Gửi</button>
+        <form className="chat-form" onSubmit={post} autoComplete="off">
+          <input value={text} onChange={(e) => setText(e.target.value)} placeholder="Viết lời chúc của bạn…" maxLength={500} aria-label="Nội dung tin nhắn" />
+          <button className="send-btn" type="submit" aria-label="Gửi tin nhắn">Gửi ↗</button>
         </form>
       </aside>
 
-      {note && <div className="note">{note}</div>}
-      <div ref={audios} className="hide" />
+      {note && <div className="toast" role="status">{note}</div>}
+      <div ref={audios} className="audio-bin" />
 
       {!joined && (
-        <div className="join"><div className="box">
-          <h1>Chào mừng về nhà 🎄</h1>
-          <p>Chọn hình đại diện và tên của bạn, rồi vào ngồi cạnh lò sưởi cùng cả nhà. Bạn có thể bật mic để nói chuyện trực tiếp.</p>
-          <div className="avs">{AVS.map((a) => <button key={a} type="button" className={a === av ? 'on' : ''} onClick={() => setAv(a)}>{a}</button>)}</div>
-          <div className="row">
-            <input value={name} onChange={(e) => setName(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && enter()} placeholder="Tên của bạn (Mẹ, Bố, Bi…)" maxLength={16} />
-            <button className="btn" onClick={enter}>Vào phòng</button>
+        <div className="join-overlay">
+          <div className="join-card">
+            <div className="join-ornament">🎅</div>
+            <span className="join-kicker">WELCOME TO OUR HOME</span>
+            <h1>Merry Christmas!</h1>
+            <p>Chọn một hình đại diện và tên thân thương của bạn. Cả nhà đang chờ bạn bên lò sưởi ấm áp!</p>
+            <span className="avatar-label">Chọn nhân vật của bạn</span>
+            <div className="avs">{AVS.map((a) => <button key={a} type="button" className={a === av ? 'on' : ''} onClick={() => setAv(a)} aria-label={`Chọn ${a}`} aria-pressed={a === av}>{a}</button>)}</div>
+            <form className="join-form" onSubmit={(e) => { e.preventDefault(); enter(); }}>
+              <input className="name-input" value={name} onChange={(e) => setName(e.target.value)} placeholder="Tên của bạn…" maxLength={16} aria-label="Tên hiển thị" />
+              <button className="join-submit" type="submit">Vào phòng ✨</button>
+            </form>
+            <small className="join-footnote">A SEASON OF LOVE · JOY · TOGETHERNESS</small>
           </div>
-        </div></div>
+        </div>
       )}
     </>
   );
