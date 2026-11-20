@@ -1,7 +1,16 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import {
+  ChristmasAtmosphere,
+  ChristmasIntro,
+  ChristmasScrollReveal,
+} from "./components/ChristmasEffects";
 
+import {
+  MusicVisualizer,
+  useChristmasAudioAnalyser,
+} from "./components/MusicVisualizer";
 type Countdown = { days: number; hours: number; minutes: number; seconds: number };
 
 type SnowParticle = {
@@ -61,7 +70,10 @@ export default function HomePage() {
   const [musicError, setMusicError] = useState("");
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const snowCanvasRef = useRef<HTMLCanvasElement | null>(null);
+  const [introVisible, setIntroVisible] = useState(true);
 
+  const { analyserRef, resumeAudio } =
+  useChristmasAudioAnalyser(audioRef);
   useEffect(() => {
     setCountdown(getCountdown(target));
     const timer = window.setInterval(() => setCountdown(getCountdown(target)), 1000);
