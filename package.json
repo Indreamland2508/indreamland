@@ -1,22 +1,12 @@
 {
-  "name": "a-little-christmas-world",
+  "name": "phong-khach-giang-sinh",
   "version": "1.0.0",
   "private": true,
-  "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "tsc --noEmit"
-  },
+  "scripts": { "dev": "next dev", "build": "next build", "start": "next start" },
   "dependencies": {
-    "next": "16.4.2",
-    "react": "19.2.0",
-    "react-dom": "19.2.0"
-  },
-  "devDependencies": {
-    "@types/node": "^22.15.30",
-    "@types/react": "^19.2.0",
-    "@types/react-dom": "^19.2.0",
-    "typescript": "^5.9.3"
+    "@supabase/supabase-js": "^2.45.0",
+    "next": "^15.0.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
   }
 }
