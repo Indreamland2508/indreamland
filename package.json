@@ -1,12 +1,18 @@
 {
-  "name": "phong-khach-giang-sinh",
+  "name": "christmas-wonderland",
   "version": "1.0.0",
   "private": true,
-  "scripts": { "dev": "next dev", "build": "next build", "start": "next start" },
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
+  },
+  "engines": {
+    "node": ">=20.9.0"
+  },
   "dependencies": {
-    "@supabase/supabase-js": "^2.45.0",
-    "next": "^15.0.0",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "next": "16.4.2",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0"
   }
 }

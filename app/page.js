@@ -1,2 +1,5 @@
-import Room from '../components/Room';
-export default function Page() { return <Room />; }
+import WonderlandHome from '../components/wonderland/WonderlandHome';
+
+export default function HomePage() {
+  return <WonderlandHome />;
+}
